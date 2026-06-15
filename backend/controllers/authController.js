@@ -104,8 +104,9 @@ const verificarCodigo = async (req, res) => {
 const login = async (req, res) => {
   const { username, password } = req.body;
   try {
-    if (!username || !password) return res.status(400).json({ detail: 'Ingresa usuario y contraseña' });
-    const usuario = await User.findOne({ username });
+    if (!username || !password) return res.status(400).json({ detail: 'Ingresa usuario/correo y contraseña' });
+    // Busca por username O por email (el campo "username" puede ser cualquiera de los dos)
+    const usuario = await User.findOne({ $or: [{ username }, { email: username.toLowerCase() }] });
     if (!usuario) return res.status(401).json({ detail: 'Credenciales incorrectas' });
     if (!usuario.verificado) return res.status(403).json({ detail: 'Cuenta no verificada. Revisa tu correo.' });
     const passwordValida = await bcrypt.compare(password, usuario.password);
